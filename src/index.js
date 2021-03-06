@@ -17,18 +17,19 @@ module.exports = function check(str, bracketsConfig) {
     var ch = str[i];
     var checkS = checkSide(ch, bracketsConfig);
     var iBracket = checkiBracket(ch, bracketsConfig);    
-    if(checkS === "left") {
+    if(checkS === "left" || (checkS === "same" && stack.indexOf(ch)==-1)) {
       stack.push(ch);
       continue;
     }
-
-    if (stack == "") return false;
-    var tmpCh = stack.pop();
-    if (checkSide(tmpCh, bracketsConfig) == "left") {
-      if(checkiBracket(tmpCh,bracketsConfig) == iBracket)
-        continue;
-      else 
-        return false;
+    else if(checkS == "right") {
+      let tmpCh = stack.pop();
+      if (checkiBracket(tmpCh,bracketsConfig) == iBracket) continue;
+      else return false;
+    }
+    else if (checkS === "same" && stack.indexOf(ch)!=-1) {
+      let tmpCh = stack.pop();
+      if (checkiBracket(tmpCh,bracketsConfig) == iBracket) continue;
+      else return false;
     }
   }
   return true;
@@ -36,6 +37,8 @@ module.exports = function check(str, bracketsConfig) {
 
 function checkSide(ch, bracketsConfig) {
   for (var i=0; i<bracketsConfig.length; i++) {
+    if (ch == bracketsConfig[i][0] && ch == bracketsConfig[i][1])
+      return "same"
     if (ch == bracketsConfig[i][0])
       return "left";
     if (ch == bracketsConfig[i][1])
